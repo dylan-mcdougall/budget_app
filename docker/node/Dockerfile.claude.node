@@ -1,0 +1,39 @@
+FROM debian:bookworm-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    bash \
+    ca-certificates \
+    git \
+    gnupg \
+    build-essential \
+    python3 \
+    python3-pip \
+    procps \
+    wget \
+    unzip \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
+
+# Targets node 23.X, replace if necessary
+RUN mkdir -p /etc/apt/keyrings \
+    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_23.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
+    && apt-get update \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Permissions
+RUN groupadd -g 1000 nodegroup && \
+    useradd -m -u 1000 -g nodegroup -s /bin/bash nodeuser
+
+USER nodeuser
+WORKDIR /home/nodeuser
+
+RUN curl -fsSL https://claude.ai/install.sh | bash
+
+ENV PATH="/home/nodeuser/.local/bin:${PATH}"
+
+CMD ["tail", "-f", "/dev/null"]

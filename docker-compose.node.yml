@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+    user: "1000:1000"
+
+  claude-code:
+    build:
+      context: .
+      dockerfile: docker/node/Dockerfile.claude.node
+    volumes:
+      - ./:/workspace
+      - claude-data:/home/nodeuser/.local
+    working_dir: /workspace
+    user: "1000:1000"
+    stdin_open: true
+    tty: true
+
+volumes:
+  claude-data:

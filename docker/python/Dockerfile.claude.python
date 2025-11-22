@@ -1,0 +1,37 @@
+FROM debian:bookworm-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    bash \
+    ca-certificates \
+    git \
+    gnupg \
+    build-essential \
+    python3 \
+    python3-pip \
+    python3-venv \
+    procps \
+    wget \
+    unzip \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create user for Python projects
+RUN groupadd -g 1000 pygroup && \
+    useradd -m -u 1000 -g pygroup -s /bin/bash pyuser
+
+USER pyuser
+WORKDIR /home/pyuser
+
+# Install Claude Code
+RUN curl -fsSL https://claude.ai/install.sh | bash
+
+ENV PATH="/home/pyuser/.local/bin:${PATH}"
+
+# Set up a default virtual environment
+RUN python3 -m venv /home/pyuser/venv
+ENV PATH="/home/pyuser/venv/bin:${PATH}"
+
+CMD ["tail", "-f", "/dev/null"]
